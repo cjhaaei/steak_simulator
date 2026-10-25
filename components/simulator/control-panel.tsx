@@ -103,15 +103,9 @@ export function ControlPanel({ params, locale, onChange }: ControlPanelProps) {
   const currentCut = CUT_PROFILES[params.cut ?? 'striploin']
   const isDouble = params.mode === 'double'
 
-  const updateCondition = (patch: Partial<SimulationParams>, targetOverride?: TargetDoneness) => {
+  const updateCondition = (patch: Partial<SimulationParams>) => {
     const nextBase = { ...params, ...patch }
-    const target = targetOverride ?? selectedDoneness
-    if (autoAdjust || targetOverride) {
-      const rec = recommendCookingTimes(nextBase, target)
-      onChange({ ...nextBase, ...rec })
-    } else {
-      onChange(nextBase)
-    }
+    onChange(nextBase)
   }
 
   const handleSelectDoneness = (doneness: TargetDoneness) => {

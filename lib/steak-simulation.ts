@@ -94,9 +94,9 @@ export const CUT_PROFILES: Record<SteakCut, CutProfile> = {
     id: 'tenderloin',
     nameKo: '안심',
     nameEn: 'Tenderloin',
-    alpha: 2.15e-7,
-    kBeef: 0.54,
-    surfaceWaterKgPerM2: 0.32,
+    alpha: 1.58e-7,
+    kBeef: 0.52,
+    surfaceWaterKgPerM2: 0.48,
     defaultThicknessCm: 4.0,
     recommendedDoneness: 'medium-rare',
     idealDonenessKo: '레어 ~ 미디엄 레어 (50~55°C)',
@@ -109,9 +109,9 @@ export const CUT_PROFILES: Record<SteakCut, CutProfile> = {
     id: 'striploin',
     nameKo: '채끝 · 뉴욕스트립',
     nameEn: 'Striploin',
-    alpha: 2.0e-7,
-    kBeef: 0.50,
-    surfaceWaterKgPerM2: 0.30,
+    alpha: 1.48e-7,
+    kBeef: 0.49,
+    surfaceWaterKgPerM2: 0.45,
     defaultThicknessCm: 3.5,
     recommendedDoneness: 'medium-rare',
     idealDonenessKo: '미디엄 레어 (53~57°C)',
@@ -124,9 +124,9 @@ export const CUT_PROFILES: Record<SteakCut, CutProfile> = {
     id: 'ribeye',
     nameKo: '꽃등심 · 립아이',
     nameEn: 'Ribeye',
-    alpha: 1.82e-7,
+    alpha: 1.36e-7,
     kBeef: 0.46,
-    surfaceWaterKgPerM2: 0.27,
+    surfaceWaterKgPerM2: 0.42,
     defaultThicknessCm: 3.5,
     recommendedDoneness: 'medium',
     idealDonenessKo: '미디엄 레어 ~ 미디엄 (56~60°C)',
@@ -162,37 +162,40 @@ export interface SimulationResult {
 
 export const PHYSICS = {
   nodes: 51,
-  alpha: 2.0e-7,
-  kBeef: 0.50,
-  hPan: 450,
-  hAirCook: 16,
+  alpha: 1.48e-7,
+  kBeef: 0.49,
+  hPan: 285,
+  hAirCook: 18,
   hAirRest: 10,
-  hRestEvaporation: 18,
-  surfaceWaterKgPerM2: 0.30,
+  hRestEvaporation: 22,
+  surfaceWaterKgPerM2: 0.45,
   latentHeat: 2.26e6,
-  maxSurfaceTemp: 175,
+  maxSurfaceTemp: 154,
   sampleEverySec: 5,
 } as const;
 
 export function getNumerics(thicknessCm: number, cut: SteakCut = 'striploin') {
   const cutProfile = CUT_PROFILES[cut] ?? CUT_PROFILES.striploin;
+  // Effective 3D thermal diffusivity factor (accounts for side heat & pan thermal mass drop on thin cuts)
+  const thicknessFactor = Math.pow(thicknessCm / 3.0, 0.78);
+  const effAlpha = cutProfile.alpha * thicknessFactor;
   const dx = thicknessCm / 100 / (PHYSICS.nodes - 1);
   const biot = (PHYSICS.hPan * dx) / cutProfile.kBeef;
   // Explicit FTCS stability incl. convective boundary node: 2r(1 + Bi) <= 1, with 20% margin.
-  const dtMax = (0.4 * dx * dx) / (cutProfile.alpha * (1 + biot));
+  const dtMax = (0.4 * dx * dx) / (effAlpha * (1 + biot));
   const substeps = Math.max(1, Math.ceil(1 / dtMax));
   const dt = 1 / substeps;
-  const r = (cutProfile.alpha * dt) / (dx * dx);
-  return { dx, dt, substeps, r, biot, stabilityLimit: 1 / (2 * (1 + biot)), cutProfile };
+  const r = (effAlpha * dt) / (dx * dx);
+  return { dx, dt, substeps, r, biot, effAlpha, stabilityLimit: 1 / (2 * (1 + biot)), cutProfile };
 }
 
 export function runSteakSimulation(params: SimulationParams): SimulationResult {
   const N = PHYSICS.nodes;
   const cutKey: SteakCut = params.cut ?? 'striploin';
-  const { dx, dt, substeps, r, cutProfile } = getNumerics(params.thicknessCm, cutKey);
+  const { dx, dt, substeps, r, effAlpha, cutProfile } = getNumerics(params.thicknessCm, cutKey);
   const { hPan, hAirCook, hAirRest } = PHYSICS;
   const kBeef = cutProfile.kBeef;
-  const rhoC = kBeef / cutProfile.alpha;
+  const rhoC = kBeef / effAlpha;
   const halfCellHeatCapacity = rhoC * (dx / 2);
 
   let T = new Array<number>(N).fill(params.initialTempC);
@@ -252,7 +255,9 @@ export function runSteakSimulation(params: SimulationParams): SimulationResult {
       // Internal juice slightly re-wets the dry crust during resting (up to 18% of initial moisture)
       moisture[face] = Math.min(initialMoisture * 0.18, moisture[face] + initialMoisture * 0.00025 * dt);
     } else if (onPan) {
-      h = hPan;
+      // As the steak core warms above 48°C, muscle fiber contraction slightly reduces pan contact & moisture conductivity
+      const contactFactor = T[centerIdx] > 48 ? Math.max(0.55, 1 - (T[centerIdx] - 48) * 0.025) : 1.0;
+      h = hPan * contactFactor;
       tInf = params.panTempC;
     } else {
       h = hAirCook;
