@@ -24,8 +24,8 @@ export function MetricCards({ result, locale }: MetricCardsProps) {
   const grayTone = result.grayBandRatio > 25 ? 'text-rose-400' : result.grayBandRatio > 12 ? 'text-amber-400' : 'text-emerald-400'
 
   return (
-    <section aria-label="결과 요약" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <div className="col-span-2 flex flex-col justify-between gap-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 lg:col-span-1">
+    <section aria-label="결과 요약" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="flex flex-col justify-between gap-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400">
           {isEn ? 'Final Doneness' : '완성된 스테이크 굽기'}
         </p>
@@ -46,27 +46,6 @@ export function MetricCards({ result, locale }: MetricCardsProps) {
 
       <div className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400">
-          {isEn ? 'Peak Core Temp' : '속살(정중앙) 최종 온도'}
-        </p>
-        <p className="font-mono text-3xl font-semibold tabular-nums text-zinc-50">
-          {result.maxCoreTemp.toFixed(1)}
-          <span className="ml-1 text-base text-zinc-500">°C</span>
-        </p>
-        <p className="text-xs text-zinc-400">
-          {isEn ? (
-            <>
-              Carryover during rest: <span className="font-mono text-amber-400">+{result.carryoverDelta.toFixed(1)}°C</span>
-            </>
-          ) : (
-            <>
-              레스팅 중 잔열로 <span className="font-mono text-amber-400">+{result.carryoverDelta.toFixed(1)}°C</span> 더 익음
-            </>
-          )}
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400">
           {isEn ? 'Overcooked Gray Band' : '오버쿡 테두리 (그레이밴드)'}
         </p>
         <p className={cn('font-mono text-3xl font-semibold tabular-nums', grayTone)}>
@@ -79,7 +58,7 @@ export function MetricCards({ result, locale }: MetricCardsProps) {
         </p>
       </div>
 
-      <div className="col-span-2 flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 lg:col-span-1">
+      <div className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400">
           {isEn ? 'Surface Crust Score' : '겉면 바삭함 (크러스트)'}
         </p>

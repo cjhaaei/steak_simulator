@@ -74,11 +74,11 @@ export function SteakSimulator() {
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 md:text-4xl text-balance">
             {isEn ? (
               <>
-                Visual <span className="text-amber-400">Steak Doneness</span> & Resting Simulator
+                Steak <span className="text-amber-400">Cross-Section</span> Simulator
               </>
             ) : (
               <>
-                내 맘대로 구워보는 <span className="text-amber-400">스테이크 단면</span> 시뮬레이터
+                스테이크 굽기 <span className="text-amber-400">단면</span> 시뮬레이터
               </>
             )}
           </h1>
@@ -143,7 +143,6 @@ export function SteakSimulator() {
         </div>
 
         <main className="flex min-w-0 flex-col gap-6">
-          <MetricCards result={result} locale={locale} />
           <CrossSection
             params={deferredParams}
             result={result}
@@ -159,6 +158,7 @@ export function SteakSimulator() {
             cut={deferredParams.cut}
             locale={locale}
           />
+          <MetricCards result={result} locale={locale} />
           <ModeComparison
             single={comparison.single}
             double={comparison.double}
