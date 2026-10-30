@@ -6,9 +6,38 @@ import './globals.css'
 const notoSansKr = Noto_Sans_KR({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-noto' })
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' })
 
+const SITE_TITLE = '스테이크 굽기 단면 시뮬레이터 | 굽기·레스팅 시간 계산기'
+const SITE_DESCRIPTION =
+  '고기 부위와 두께, 원하는 굽기(레어~웰던)를 고르면 스테이크 굽는 시간과 레스팅 시간을 추천하고, 속살 단면이 익어가는 모습을 시뮬레이션으로 보여줍니다. 더블 레스팅 비교 지원.'
+
 export const metadata: Metadata = {
-  title: '스테이크 열전도 & 더블 레스팅 시뮬레이터',
-  description: '1D 유한차분법(FDM)으로 스테이크 시어링과 레스팅 중 내부 온도, 캐리오버, 그레이 밴드, 크러스트를 계산하는 시뮬레이터',
+  metadataBase: new URL('https://steaksimulator.vercel.app'),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  keywords: [
+    '스테이크 굽기',
+    '스테이크 굽는 시간',
+    '스테이크 레스팅',
+    '미디엄 레어',
+    '더블 레스팅',
+    '스테이크 시뮬레이터',
+    'steak doneness',
+    'steak resting time',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName: '스테이크 굽기 단면 시뮬레이터',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    locale: 'ko_KR',
+  },
+  // 구글 서치 콘솔 / 네이버 서치어드바이저 소유권 확인 코드
+  verification: {
+    google: 'w68YPXySaKu2ArpaVAZEumvqwBXHt7bFjmMutGD6CDs',
+    other: { 'naver-site-verification': '715f6b5494615010c0117c4ef9fc822a716bc10a' },
+  },
   generator: 'v0.app',
   icons: {
     icon: [
