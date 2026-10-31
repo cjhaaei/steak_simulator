@@ -1,4 +1,4 @@
-import { Analytics } from '@vercel/analytics/next'
+import { Analytics } from '@vercel/analytics/react'
 import type { Metadata, Viewport } from 'next'
 import { Geist_Mono, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
@@ -63,7 +63,7 @@ export default function RootLayout({
     <html lang="ko" className={`dark ${notoSansKr.variable} ${geistMono.variable}`}>
       <body className="bg-zinc-950 font-sans text-zinc-100 antialiased">
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <Analytics />
       </body>
     </html>
   )
